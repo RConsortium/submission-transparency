@@ -10,8 +10,8 @@ truth.**
 - **Fill in a stub topic** (see the 🟡 rows in the [README](README.md)).
 - **Add an alternative minimal implementation** of an existing topic (e.g. a
   base-R version alongside a package version).
-- **Strengthen a simulation** — more realistic data-generating processes, extra
-  scenarios (small n, high censoring, non-normality), or a documented failure mode.
+- **Add a simple simulation** that tests the package recovers the truth — one
+  data-generating process with a known parameter, reporting bias and coverage.
 - **Fix an error.** If a chapter's numbers or claims are wrong, that's a
   high-priority issue.
 
