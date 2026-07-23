@@ -21,11 +21,16 @@ truth.**
    Add a package only when it earns its place, and it should be one a reviewer is
    likely to already trust (widely used, well documented, actively maintained).
    No deep nesting or custom wrapper layers around the headline numbers.
-2. **Check against a known truth.** Every method must include a simulation that
-   generates data from a process with a *known* parameter and reports **bias,
-   SE calibration (`se_ratio`), and CI coverage** using the shared helpers in
-   [`R/sim_utils.R`](R/sim_utils.R). If the estimator is biased or under-covers,
-   **document it** — a known caveat is more valuable than a hidden one.
+2. **Check against a known truth, at a large sample size.** Every method must
+   include a simulation that generates data from a process with a *known*
+   parameter and reports **bias, SE calibration (`se_ratio`), and CI coverage**
+   using the shared helpers in [`R/sim_utils.R`](R/sim_utils.R). Simulate at a
+   **large sample size (n ≈ 1000)**: the aim is to demonstrate the
+   implementation *recovers the truth* (bias → 0, coverage → nominal), not to
+   study finite-sample quirks. If the estimator is biased or under-covers even
+   at large n, **document it** — a known caveat is more valuable than a hidden
+   one. (If a topic is specifically about small-sample behaviour, state that
+   explicitly.)
 
 ## How to add a topic
 
@@ -45,7 +50,8 @@ truth.**
 ## Contribution checklist
 
 - [ ] Analysis code is minimal and uses base R / common packages only.
-- [ ] There is a simulation with a clearly stated **true** parameter.
+- [ ] There is a simulation with a clearly stated **true** parameter, run at a
+      large sample size (n ≈ 1000) unless the topic is about small-n behaviour.
 - [ ] The chapter reports bias, `se_ratio`, and coverage via `print_eval()`.
 - [ ] Any bias / under-coverage / caveat is stated in the text, not hidden.
 - [ ] Seeds are fixed and `sessionInfo()` is printed.

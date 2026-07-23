@@ -8,12 +8,12 @@ methods that appear in clinical-trial submissions — each paired with a
 
 Two recurring pieces of feedback from FDA statistical reviewers:
 
-1. **Submitted code is often deeply nested.** The code that produces the primary
+1. **Submitted code is sometimes deeply nested.** The code that produces the primary
    and key secondary endpoint results should be *minimal* and rely on *common,
-   well-understood R packages* (base R wherever possible), so a reviewer can read
+   well-understood R packages*, so a reviewer can read
    it top to bottom.
 2. **Reviewers aren't always familiar with a given package's numerical
-   behaviour.** So for each method we don't just show the code — we **simulate
+   behaviour.** So as a community, here for each method we don't just show the code — we **simulate
    data with a known parameter and measure how far the estimate lands from the
    truth** (bias, SE calibration, CI coverage).
 

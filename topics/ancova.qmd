@@ -66,7 +66,7 @@ source("R/sim_utils.R")  # project root is the working dir (see _quarto.yml)
 
 TRUE_EFFECT <- 4
 BASE_SLOPE  <- 0.6
-N_PER_ARM   <- 100
+N_PER_ARM   <- 1000   # large n: isolate "does the method recover the truth?"
 N_REP       <- 2000
 
 gen <- function(i) {

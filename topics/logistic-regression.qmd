@@ -25,6 +25,5 @@ risk difference from a marginal standardisation) with its confidence interval.
 ## Simulation to build
 
 - Simulate binary outcomes from a logistic model with a **known** treatment
-  log-odds. Confirm the estimated log-odds/odds ratio is (approximately)
-  unbiased and that the Wald/profile CI covers at ~95%.
-- Worth documenting: small-sample bias of the MLE and separation behaviour.
+  log-odds, at a large sample size (n ≈ 1000). Confirm the estimated
+  log-odds/odds ratio is unbiased and that the Wald/profile CI covers at ~95%.

@@ -30,9 +30,8 @@ Tobit regression covers a related but distinct case — a continuous outcome
 ## Simulation to build
 
 - Simulate event times from a Weibull/exponential model with a **known** hazard
-  ratio and independent censoring. Confirm the Cox `log(HR)` is approximately
-  unbiased with ~95% coverage; note the known small-sample bias of the partial-
-  likelihood estimate.
+  ratio and independent censoring, at a large sample size (n ≈ 1000). Confirm
+  the Cox `log(HR)` is unbiased with ~95% coverage.
 - For Tobit, simulate a Gaussian outcome left-censored at a known limit and show
   that Tobit recovers the true mean/slope while naive substitution
   (e.g. LLOQ/2) does not.

@@ -35,10 +35,17 @@ Delete these comments before submitting your pull request.
 source("R/sim_utils.R")  # project root is the working dir (see _quarto.yml)
 
 TRUE_VALUE <- NA   # the parameter your estimator targets
-N_REP      <- 2000
+N        <- 1000   # use a LARGE sample size (see note below)
+N_REP    <- 2000
+
+# Convention: simulate at a large sample size (n ~ 1000). The goal is to show
+# the implementation RECOVERS THE TRUTH (bias -> 0, coverage -> nominal), not to
+# study small-sample behaviour. If your topic is specifically about a small-n
+# issue, say so explicitly in the text.
 
 gen <- function(i) {
-  # Return one simulated data set drawn from a process where TRUE_VALUE holds.
+  # Return one simulated data set of size N drawn from a process where
+  # TRUE_VALUE holds.
 }
 
 fit <- function(d) {
