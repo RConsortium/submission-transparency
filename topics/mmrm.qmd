@@ -1,0 +1,37 @@
+---
+title: "Mixed Models for Repeated Measures (MMRM)"
+---
+
+::: {.callout-tip}
+## This chapter is a stub — contributions welcome
+Fill it in following the two full exemplars
+([Summary Statistics](summary-statistics.qmd),
+[ANCOVA](ancova.qmd)) and the
+[topic template](https://github.com/OWNER/submission-transparency/blob/main/templates/topic-template.qmd).
+See the checklist in [`CONTRIBUTING.md`](../CONTRIBUTING.md).
+:::
+
+## What a reviewer wants
+
+For a longitudinal continuous endpoint, the adjusted treatment difference **at
+the final planned visit**, from a model with an unstructured covariance over
+time and no imputation of missing outcomes (MMRM is the pre-specified primary
+analysis for many confirmatory trials).
+
+## Suggested minimal approach
+
+- **Fit:** the `mmrm` package —
+  `mmrm(CHG ~ TRT * VISIT + BASE * VISIT + us(VISIT | USUBJID), data = adam)`.
+  It is purpose-built, uses Satterthwaite/Kenward-Roger d.f., and is the common
+  choice in the R-in-pharma community. `nlme::gls` with `corSymm` is a base-ish
+  alternative worth showing side by side.
+- **Report:** `emmeans(fit, ~ TRT | VISIT)` and contrast at the last visit.
+
+## Simulation to build
+
+- Simulate multivariate-normal repeated measures with a **known** visit-specific
+  treatment effect and a realistic within-subject correlation, then induce MAR
+  dropout.
+- Confirm the last-visit treatment difference is unbiased and covers at ~95%
+  under MAR, and contrast with a naive complete-case or LOCF analysis to show
+  the bias those introduce.

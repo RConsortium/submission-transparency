@@ -1,0 +1,127 @@
+---
+title: "Summary Statistics"
+---
+
+## What a reviewer wants
+
+For a continuous endpoint, the descriptive table (n, mean, standard deviation,
+median, minimum, maximum, and the count of missing values) per treatment arm is
+the most-read table in the submission. It should be produced by code a reviewer
+can read in one pass. **Base R is enough** — no package is required, so there is
+nothing to trust beyond the R interpreter itself.
+
+## Minimal analysis
+
+We build a tiny, explicit summary function and apply it by treatment arm. Every
+line maps directly to a number a reviewer will look for.
+
+```{r}
+#| label: minimal-summary
+
+# A small, self-documenting summary of one numeric vector.
+descr <- function(x) {
+  x_obs <- x[!is.na(x)]
+  c(
+    n       = length(x_obs),
+    missing = sum(is.na(x)),
+    mean    = mean(x_obs),
+    sd      = sd(x_obs),
+    median  = median(x_obs),
+    min     = min(x_obs),
+    max     = max(x_obs)
+  )
+}
+
+# Example data: change from baseline by treatment arm.
+set.seed(1)
+adam <- data.frame(
+  TRT01P = rep(c("Placebo", "Active"), each = 60),
+  CHG    = c(rnorm(60, mean = 1.0, sd = 4),
+             rnorm(60, mean = 3.5, sd = 4))
+)
+adam$CHG[c(5, 20, 95)] <- NA  # a few dropouts
+
+# One line produces the by-arm summary table.
+summary_table <- t(sapply(split(adam$CHG, adam$TRT01P), descr))
+round(summary_table, 2)
+```
+
+That is the whole analysis: a function every reviewer can verify by eye, and a
+single `split()` + `sapply()` to apply it by arm.
+
+## Simulation evidence: do the estimates recover the truth?
+
+A summary statistic is only useful if it is an unbiased, well-calibrated
+estimate of the population quantity. We simulate many trials from a **known**
+mean and standard deviation and check that:
+
+- the sample **mean** is unbiased for the true mean, and its 95% CI covers the
+  truth ~95% of the time;
+- the sample **standard deviation** is (nearly) unbiased for the true SD.
+
+```{r}
+#| label: sim-setup
+source("R/sim_utils.R")  # project root is the working dir (see _quarto.yml)
+
+TRUE_MEAN <- 3.5
+TRUE_SD   <- 4.0
+N_PER_ARM <- 60
+N_REP     <- 2000
+
+# Generate one arm's worth of data.
+gen <- function(i) {
+  data.frame(y = rnorm(N_PER_ARM, mean = TRUE_MEAN, sd = TRUE_SD))
+}
+
+# Fit = compute the sample mean and its standard error (one-sample t interval).
+fit_mean <- function(d) {
+  m  <- mean(d$y)
+  se <- sd(d$y) / sqrt(nrow(d))
+  tcrit <- qt(0.975, df = nrow(d) - 1)
+  list(estimate = m, se = se,
+       lower = m - tcrit * se, upper = m + tcrit * se)
+}
+```
+
+```{r}
+#| label: sim-run
+res_mean <- run_simulation(N_REP, gen, fit_mean, seed = 100)
+print_eval(evaluate_estimator(res_mean$estimate, res_mean$se,
+                              truth = TRUE_MEAN,
+                              lower = res_mean$lower, upper = res_mean$upper))
+```
+
+Read the row as: **bias** near 0, **se_ratio** near 1 (the reported SE matches
+the true spread of estimates), and **coverage** near 0.95. That is exactly what
+an unbiased, correctly-calibrated estimator should show.
+
+We can check the standard deviation the same way. The sample SD is known to be
+slightly *biased low* in small samples; the simulation makes that visible rather
+than assumed.
+
+```{r}
+#| label: sim-sd
+fit_sd <- function(d) {
+  s <- sd(d$y)
+  # SE of the sample SD (normal approx) is s / sqrt(2(n-1)).
+  list(estimate = s, se = s / sqrt(2 * (nrow(d) - 1)))
+}
+res_sd <- run_simulation(N_REP, gen, fit_sd, seed = 200)
+print_eval(evaluate_estimator(res_sd$estimate, res_sd$se, truth = TRUE_SD))
+```
+
+The small negative `bias` on the SD (a fraction of a percent at n = 60) is the
+expected finite-sample behaviour — worth knowing, and now demonstrated rather
+than taken on faith.
+
+## Takeaways
+
+- The descriptive table needs **no package** — base R is fully sufficient and
+  maximally transparent.
+- The sample mean is unbiased with correct CI coverage; the sample SD is very
+  slightly biased low in small samples, exactly as theory predicts.
+
+```{r}
+#| label: session
+sessionInfo()
+```

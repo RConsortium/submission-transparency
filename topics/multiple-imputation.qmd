@@ -1,0 +1,38 @@
+---
+title: "Multiple Imputation"
+---
+
+::: {.callout-tip}
+## This chapter is a stub — contributions welcome
+Fill it in following the two full exemplars
+([Summary Statistics](summary-statistics.qmd),
+[ANCOVA](ancova.qmd)) and the
+[topic template](https://github.com/OWNER/submission-transparency/blob/main/templates/topic-template.qmd).
+See the checklist in [`CONTRIBUTING.md`](../CONTRIBUTING.md).
+:::
+
+## What a reviewer wants
+
+A principled treatment of missing outcome data that propagates imputation
+uncertainty into the final CI, most often as a sensitivity analysis around the
+primary estimand. The two common flavours:
+
+- **Regression-based MI** for a continuous endpoint (impute, analyse each
+  completed data set, pool by Rubin's rules).
+- **MCMC MI** for a general (arbitrary) missingness pattern.
+
+## Suggested minimal approach
+
+- **Impute:** the `mice` package — `mice(data, m = 20, method = ...)` is the
+  community standard and well documented.
+- **Analyse + pool:** `with(imp, lm(CHG ~ TRT + BASE))` then `pool()` — this
+  applies Rubin's rules and gives the pooled estimate, SE, and CI.
+- MCMC MI (`mice` `norm`/`pmm`, or `jomo`/`mi`) covers non-monotone patterns.
+
+## Simulation to build
+
+- Simulate complete data with a **known** treatment effect, impose an MAR
+  missingness mechanism, then apply MI + Rubin pooling.
+- Confirm the pooled estimate is unbiased and covers at ~95% under MAR, and show
+  that complete-case analysis is biased when missingness depends on observed
+  covariates. Document the number of imputations needed for stable inference.

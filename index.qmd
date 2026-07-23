@@ -1,0 +1,61 @@
+# Preface {.unnumbered}
+
+## Why this book exists
+
+Two recurring pieces of feedback from FDA statistical reviewers motivate this
+project:
+
+1. **Submitted analysis code is often deeply nested and hard to follow.**
+   For the primary and key secondary endpoints, the code that produces the
+   headline numbers should be *minimal* and, wherever possible, rely on
+   **common, well-understood R packages** — ideally base R and a small number
+   of widely used, well-documented packages. A reviewer should be able to read
+   the estimand-defining code top to bottom without untangling layers of custom
+   wrappers.
+
+2. **Reviewers are not always familiar with the numerical behaviour of every
+   package.** When a sponsor uses a particular function to fit a model, it is
+   fair for a reviewer to ask: *does this implementation actually recover the
+   truth?* This book answers that question empirically. For each method we
+   **simulate data with a known true parameter, fit the minimal code, and
+   measure how far the estimates land from the truth** — reporting bias,
+   standard-error calibration, and confidence-interval coverage.
+
+Every chapter therefore has the same two-part shape:
+
+- **Minimal analysis** — the smallest defensible piece of code, using common
+  packages, that produces the estimate a reviewer cares about.
+- **Simulation evidence** — a self-contained study showing the estimator is
+  (or is not) unbiased and correctly covered under a data-generating process
+  where the answer is known.
+
+## Who this is for
+
+- **Sponsors** who want a template for submission-ready, readable analysis code.
+- **Reviewers** who want a reference for the expected numerical behaviour of
+  common methods.
+- **The R-in-pharma community**, who can contribute new topics, alternative
+  minimal implementations, and stronger simulation studies.
+
+## How to read a chapter
+
+Each chapter is a runnable Quarto document. Clone the repository, install the
+packages listed in the chapter, and render it — the tables you see were
+produced by the code shown directly above them. Nothing is hidden.
+
+## Principles
+
+- **Minimal beats clever.** If base R does it clearly, use base R.
+- **Common beats niche.** Prefer packages a reviewer is likely to already trust.
+- **Show the truth.** Every method is checked against a known data-generating
+  process, not just described.
+- **Reproducible.** Seeds are fixed; `sessionInfo()` is printed.
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) to add a topic or improve an existing one.
+
+::: {.callout-warning}
+## Not statistical advice
+The examples here are illustrative templates. They are **not** a substitute for
+a study-specific statistical analysis plan, nor for regulatory guidance. Choice
+of estimand, model, and missing-data strategy must be driven by the trial.
+:::

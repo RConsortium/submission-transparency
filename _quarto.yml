@@ -1,0 +1,52 @@
+project:
+  type: book
+  output-dir: _book
+
+book:
+  title: "Minimal, Transparent Statistical Analyses for Regulatory Submissions"
+  subtitle: "Common R packages, minimal code, and simulation evidence that the estimates are right"
+  author: "Community contributors"
+  date: today
+  repo-url: https://github.com/OWNER/submission-transparency
+  repo-actions: [edit, issue]
+  search: true
+  sidebar:
+    style: docked
+  chapters:
+    - index.qmd
+    - part: "Descriptive"
+      chapters:
+        - topics/summary-statistics.qmd
+    - part: "Continuous endpoints"
+      chapters:
+        - topics/ancova.qmd
+        - topics/mmrm.qmd
+    - part: "Binary & categorical endpoints"
+      chapters:
+        - topics/logistic-regression.qmd
+        - topics/cmh.qmd
+    - part: "Time-to-event & censored"
+      chapters:
+        - topics/survival.qmd
+    - part: "Missing data"
+      chapters:
+        - topics/multiple-imputation.qmd
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    code-fold: false
+    code-tools: true
+    df-print: paged
+  # Uncomment to also build a PDF book (requires a LaTeX engine, e.g. tinytex):
+  # pdf:
+  #   documentclass: scrreprt
+
+execute:
+  freeze: auto   # re-render a chapter only when its source changes
+  warning: true
+  message: false
+  # Run every chapter from the project root so `source("R/sim_utils.R")` works
+  # without the `here` package (one fewer dependency for reviewers to trust).
+  dir: project

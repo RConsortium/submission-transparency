@@ -1,0 +1,44 @@
+name: Render book
+
+# Confirms the book renders on every push / PR, so a broken chapter is caught
+# in review. Does NOT deploy — enable the deploy step below when you want a site.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - name: Install R package dependencies
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: |
+            any::emmeans
+            any::survival
+            any::mmrm
+            any::mice
+
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+
+      - name: Render book
+        uses: quarto-dev/quarto-actions/render@v2
+
+      # To publish to GitHub Pages, uncomment and enable Pages for the repo:
+      # - name: Publish to GitHub Pages
+      #   uses: quarto-dev/quarto-actions/publish@v2
+      #   with:
+      #     target: gh-pages
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

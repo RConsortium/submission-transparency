@@ -1,0 +1,68 @@
+---
+title: "TOPIC NAME"
+---
+
+<!--
+Copy this file to topics/<your-topic>.qmd and fill in each section.
+Keep the two-part shape every chapter in this book uses:
+  1. Minimal analysis  — smallest defensible code, common packages.
+  2. Simulation evidence — recover a KNOWN truth; report bias & coverage.
+Delete these comments before submitting your pull request.
+-->
+
+## What a reviewer wants
+
+<!-- 2-4 sentences: what is the estimand / quantity of interest, and why the
+     minimal common-package approach below is the sensible default. Name the
+     package(s) you use and why they are the common, trusted choice. -->
+
+## Minimal analysis
+
+```{r}
+#| label: minimal
+#| message: false
+# The smallest amount of readable code that produces the estimate a reviewer
+# cares about. Prefer base R; add common packages only when they earn their
+# place. Show the resulting estimate + CI.
+```
+
+<!-- One short paragraph walking through what the code does. -->
+
+## Simulation evidence: does the method recover the truth?
+
+```{r}
+#| label: sim-setup
+source("R/sim_utils.R")  # project root is the working dir (see _quarto.yml)
+
+TRUE_VALUE <- NA   # the parameter your estimator targets
+N_REP      <- 2000
+
+gen <- function(i) {
+  # Return one simulated data set drawn from a process where TRUE_VALUE holds.
+}
+
+fit <- function(d) {
+  # Fit the MINIMAL method above and return:
+  #   list(estimate=, se=, lower=?, upper=?)
+}
+```
+
+```{r}
+#| label: sim-run
+res <- run_simulation(N_REP, gen, fit, seed = 1)
+print_eval(evaluate_estimator(res$estimate, res$se, TRUE_VALUE,
+                              res$lower, res$upper))
+```
+
+<!-- Interpret the row: bias near 0? se_ratio near 1? coverage near 0.95?
+     If the estimator is biased or under-covers, SAY SO — a documented caveat
+     is more valuable than a hidden one. -->
+
+## Takeaways
+
+<!-- 2-3 bullets: the recommended minimal code, and what the simulation showed. -->
+
+```{r}
+#| label: session
+sessionInfo()
+```

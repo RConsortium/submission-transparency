@@ -1,0 +1,136 @@
+---
+title: "Analysis of Covariance (ANCOVA)"
+---
+
+## What a reviewer wants
+
+ANCOVA is the workhorse for a continuous endpoint (e.g. change from baseline)
+adjusted for the baseline value and, often, stratification factors. The quantity
+of interest is the **adjusted treatment difference** (active minus placebo LS
+mean) with its confidence interval. The minimal, common-package way to get this
+is base R's `lm()` for the fit and **`emmeans`** for the least-squares means —
+`emmeans` is the de-facto standard for adjusted means in the R-in-pharma world.
+
+## Minimal analysis
+
+```{r}
+#| label: minimal-ancova
+#| message: false
+library(emmeans)
+
+# Example ADaM-like data: change from baseline, adjusting for baseline.
+set.seed(42)
+n <- 100
+adam <- data.frame(
+  USUBJID = seq_len(2 * n),
+  TRT01P  = factor(rep(c("Placebo", "Active"), each = n),
+                   levels = c("Placebo", "Active")),
+  BASE    = rnorm(2 * n, mean = 50, sd = 8)
+)
+# True model: 4-point active benefit, baseline slope of 0.6.
+adam$CHG <- 2 + 0.6 * (adam$BASE - 50) +
+  ifelse(adam$TRT01P == "Active", 4, 0) + rnorm(2 * n, sd = 5)
+
+# The entire analysis is two lines.
+fit <- lm(CHG ~ TRT01P + BASE, data = adam)
+emmeans(fit, ~ TRT01P) |>
+  contrast("revpairwise", infer = TRUE)   # Active - Placebo, with CI and p-value
+```
+
+`lm()` fits the ANCOVA; `emmeans()` produces the LS means at the mean baseline;
+`contrast("revpairwise", ...)` gives the adjusted **Active − Placebo**
+difference with its 95% CI. That is the number that goes in the results table,
+produced by code a reviewer can read in seconds.
+
+::: {.callout-note}
+## Why `emmeans` and not hand-rolled LS means
+You *can* compute the adjusted difference from `coef(fit)` directly (for this
+simple model it is just the `TRT01P` coefficient). `emmeans` earns its place the
+moment you add a stratification factor or an interaction, because it makes the
+marginal quantity — and the reference grid it is averaged over — explicit and
+auditable. For the simplest model, both agree exactly; the simulation below
+uses the raw coefficient to show the estimator itself is sound.
+:::
+
+## Simulation evidence: does ANCOVA recover the true effect?
+
+We simulate trials from a data-generating process with a **known treatment
+effect of 4**, fit the minimal ANCOVA, and record the estimated treatment
+difference, its SE, and its 95% CI. A valid analysis should show ~zero bias and
+~95% coverage. We also confirm ANCOVA's efficiency gain over an unadjusted
+two-sample comparison.
+
+```{r}
+#| label: sim-setup
+source("R/sim_utils.R")  # project root is the working dir (see _quarto.yml)
+
+TRUE_EFFECT <- 4
+BASE_SLOPE  <- 0.6
+N_PER_ARM   <- 100
+N_REP       <- 2000
+
+gen <- function(i) {
+  base <- rnorm(2 * N_PER_ARM, mean = 50, sd = 8)
+  trt  <- factor(rep(c("Placebo", "Active"), each = N_PER_ARM),
+                 levels = c("Placebo", "Active"))
+  chg  <- 2 + BASE_SLOPE * (base - 50) +
+    ifelse(trt == "Active", TRUE_EFFECT, 0) + rnorm(2 * N_PER_ARM, sd = 5)
+  data.frame(CHG = chg, TRT01P = trt, BASE = base)
+}
+
+# Adjusted analysis: ANCOVA.
+fit_ancova <- function(d) {
+  m  <- lm(CHG ~ TRT01P + BASE, data = d)
+  co <- summary(m)$coefficients["TRT01PActive", ]
+  ci <- confint(m)["TRT01PActive", ]
+  list(estimate = co["Estimate"], se = co["Std. Error"],
+       lower = ci[1], upper = ci[2])
+}
+
+# Unadjusted analysis: two-sample comparison ignoring baseline.
+fit_unadj <- function(d) {
+  m  <- lm(CHG ~ TRT01P, data = d)
+  co <- summary(m)$coefficients["TRT01PActive", ]
+  ci <- confint(m)["TRT01PActive", ]
+  list(estimate = co["Estimate"], se = co["Std. Error"],
+       lower = ci[1], upper = ci[2])
+}
+```
+
+```{r}
+#| label: sim-run
+res_ancova <- run_simulation(N_REP, gen, fit_ancova, seed = 300)
+res_unadj  <- run_simulation(N_REP, gen, fit_unadj,  seed = 300)
+
+comparison <- rbind(
+  cbind(method = "ANCOVA (adjusted)",   evaluate_estimator(
+    res_ancova$estimate, res_ancova$se, TRUE_EFFECT,
+    res_ancova$lower, res_ancova$upper)),
+  cbind(method = "Unadjusted",          evaluate_estimator(
+    res_unadj$estimate, res_unadj$se, TRUE_EFFECT,
+    res_unadj$lower, res_unadj$upper))
+)
+print_eval(comparison)
+```
+
+What to read from the table:
+
+- **Both** estimators are unbiased for the true effect of 4 (baseline is
+  balanced by randomisation), and **both** cover at ~95%.
+- **ANCOVA's `emp_se` and `rmse` are meaningfully smaller.** Adjusting for the
+  prognostic baseline removes variance, so the adjusted estimate is closer to
+  the truth on average. That efficiency — not bias removal — is why ANCOVA is
+  the standard, and the simulation quantifies exactly how much is gained.
+- `se_ratio` near 1 in both rows confirms the reported SEs are honest.
+
+## Takeaways
+
+- The submission-ready ANCOVA is `lm(CHG ~ TRT + BASE)` + `emmeans` for the
+  adjusted difference — minimal and reviewer-legible.
+- Simulation confirms the estimator is unbiased with correct coverage, and
+  quantifies the precision gain over an unadjusted analysis.
+
+```{r}
+#| label: session
+sessionInfo()
+```

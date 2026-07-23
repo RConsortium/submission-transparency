@@ -1,0 +1,19 @@
+# Quarto
+/_book/
+/.quarto/
+_freeze/
+*_files/
+*_cache/
+
+# R
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+*.Rproj
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

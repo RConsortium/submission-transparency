@@ -1,0 +1,38 @@
+---
+title: "Survival Models — Kaplan-Meier, Cox, Tobit"
+---
+
+::: {.callout-tip}
+## This chapter is a stub — contributions welcome
+Fill it in following the two full exemplars
+([Summary Statistics](summary-statistics.qmd),
+[ANCOVA](ancova.qmd)) and the
+[topic template](https://github.com/OWNER/submission-transparency/blob/main/templates/topic-template.qmd).
+See the checklist in [`CONTRIBUTING.md`](../CONTRIBUTING.md).
+:::
+
+## What a reviewer wants
+
+For a time-to-event endpoint: the Kaplan-Meier estimate (median survival,
+landmark rates), and the adjusted **hazard ratio** from a Cox model with its CI.
+Tobit regression covers a related but distinct case — a continuous outcome
+**censored at a limit** (e.g. an assay lower limit of quantification).
+
+## Suggested minimal approach
+
+- **KM:** `survival::survfit(Surv(time, event) ~ TRT)` — the universal base for
+  survival in R; report median and landmark survival with `summary()`.
+- **Cox:** `survival::coxph(Surv(time, event) ~ TRT + covariate)`; report
+  `exp(coef)` and check proportional hazards with `cox.zph()`.
+- **Tobit:** `survival::survreg(Surv(y, y > LLOQ, type = "left") ~ ...)`
+  (or `AER::tobit`), for a left-censored continuous outcome.
+
+## Simulation to build
+
+- Simulate event times from a Weibull/exponential model with a **known** hazard
+  ratio and independent censoring. Confirm the Cox `log(HR)` is approximately
+  unbiased with ~95% coverage; note the known small-sample bias of the partial-
+  likelihood estimate.
+- For Tobit, simulate a Gaussian outcome left-censored at a known limit and show
+  that Tobit recovers the true mean/slope while naive substitution
+  (e.g. LLOQ/2) does not.

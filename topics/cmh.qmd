@@ -1,0 +1,34 @@
+---
+title: "Cochran-Mantel-Haenszel (CMH) Test"
+---
+
+::: {.callout-tip}
+## This chapter is a stub — contributions welcome
+Fill it in following the two full exemplars
+([Summary Statistics](summary-statistics.qmd),
+[ANCOVA](ancova.qmd)) and the
+[topic template](https://github.com/OWNER/submission-transparency/blob/main/templates/topic-template.qmd).
+See the checklist in [`CONTRIBUTING.md`](../CONTRIBUTING.md).
+:::
+
+## What a reviewer wants
+
+A test of association between treatment and a binary/ordinal response that
+**adjusts for a stratification factor** (e.g. region), plus the common
+Mantel-Haenszel odds-ratio estimate with its CI.
+
+## Suggested minimal approach
+
+- **Test:** base R `mantelhaen.test()` on a `treatment x response x stratum`
+  array — no package needed. Use `correct = FALSE` to match SAS `FREQ` /CMH by
+  default, and document the continuity-correction choice explicitly.
+- **Estimate:** the M-H common odds ratio (base R gives it; `epitools` or a
+  short hand-rolled M-H formula can add the CI).
+
+## Simulation to build
+
+- Simulate stratified 2x2 tables with a **known** common odds ratio and unequal
+  stratum sizes / baseline risks.
+- Confirm the CMH test holds its type-I error at the nominal level under the
+  null, has the expected power under the known alternative, and that the M-H
+  odds-ratio estimate is approximately unbiased on the log scale.

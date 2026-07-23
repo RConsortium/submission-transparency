@@ -1,0 +1,30 @@
+---
+title: "Logistic Regression"
+---
+
+::: {.callout-tip}
+## This chapter is a stub — contributions welcome
+Fill it in following the two full exemplars
+([Summary Statistics](summary-statistics.qmd),
+[ANCOVA](ancova.qmd)) and the
+[topic template](https://github.com/OWNER/submission-transparency/blob/main/templates/topic-template.qmd).
+See the checklist in [`CONTRIBUTING.md`](../CONTRIBUTING.md).
+:::
+
+## What a reviewer wants
+
+For a binary endpoint (e.g. responder yes/no), the adjusted **odds ratio** (or a
+risk difference from a marginal standardisation) with its confidence interval.
+
+## Suggested minimal approach
+
+- **Fit:** base R `glm(resp ~ TRT + covariate, family = binomial)`.
+- **Report:** `exp(coef)` and `exp(confint())` for the odds ratio, or
+  `emmeans(fit, ~TRT, type = "response")` for model-predicted probabilities.
+
+## Simulation to build
+
+- Simulate binary outcomes from a logistic model with a **known** treatment
+  log-odds. Confirm the estimated log-odds/odds ratio is (approximately)
+  unbiased and that the Wald/profile CI covers at ~95%.
+- Worth documenting: small-sample bias of the MLE and separation behaviour.
