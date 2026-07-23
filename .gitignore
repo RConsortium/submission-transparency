@@ -17,3 +17,5 @@ _freeze/
 Thumbs.db
 .vscode/
 .idea/
+
+**/*.quarto_ipynb
