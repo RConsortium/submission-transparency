@@ -12,25 +12,12 @@ nothing to trust beyond the R interpreter itself.
 
 ## Minimal analysis
 
-We build a tiny, explicit summary function and apply it by treatment arm. Every
-line maps directly to a number a reviewer will look for.
+No custom function, no wrapper — one statistic per line, each a named base-R
+function applied by treatment arm with `tapply()`. A reviewer reads it top to
+bottom and sees exactly how every number in the table was computed.
 
 ```{r}
 #| label: minimal-summary
-
-# A small, self-documenting summary of one numeric vector.
-descr <- function(x) {
-  x_obs <- x[!is.na(x)]
-  c(
-    n       = length(x_obs),
-    missing = sum(is.na(x)),
-    mean    = mean(x_obs),
-    sd      = sd(x_obs),
-    median  = median(x_obs),
-    min     = min(x_obs),
-    max     = max(x_obs)
-  )
-}
 
 # Example data: change from baseline by treatment arm.
 set.seed(1)
@@ -41,13 +28,23 @@ adam <- data.frame(
 )
 adam$CHG[c(5, 20, 95)] <- NA  # a few dropouts
 
-# One line produces the by-arm summary table.
-summary_table <- t(sapply(split(adam$CHG, adam$TRT01P), descr))
+# One statistic per line, computed by arm.
+n       <- tapply(!is.na(adam$CHG), adam$TRT01P, sum)                 # non-missing
+missing <- tapply( is.na(adam$CHG), adam$TRT01P, sum)
+mean_   <- tapply(adam$CHG, adam$TRT01P, mean,   na.rm = TRUE)
+sd_     <- tapply(adam$CHG, adam$TRT01P, sd,     na.rm = TRUE)
+median_ <- tapply(adam$CHG, adam$TRT01P, median, na.rm = TRUE)
+min_    <- tapply(adam$CHG, adam$TRT01P, min,    na.rm = TRUE)
+max_    <- tapply(adam$CHG, adam$TRT01P, max,    na.rm = TRUE)
+
+# Assemble the by-arm table.
+summary_table <- cbind(n, missing, mean = mean_, sd = sd_,
+                       median = median_, min = min_, max = max_)
 round(summary_table, 2)
 ```
 
-That is the whole analysis: a function every reviewer can verify by eye, and a
-single `split()` + `sapply()` to apply it by arm.
+That is the whole analysis: seven explicit lines, each a base-R function a
+reviewer can verify by eye — nothing hidden behind a wrapper.
 
 ## Simulation evidence: do the estimates recover the truth?
 
